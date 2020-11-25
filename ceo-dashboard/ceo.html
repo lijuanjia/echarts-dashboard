@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<link rel="stylesheet" href="./styles.css">
+	<style>
+		body {
+			background-color: rgba(1, 17, 37)
+		}
+
+		.echarts-part {
+			display: flex;
+			position: absolute;
+			left: 20px;
+			right: 20px;
+			bottom: 38px;
+			top: 270px;
+			justify-content: space-around;
+		}
+
+		.charts-left,
+		.charts-right {
+			height: 100%;
+			width: 26%;
+		}
+
+		.charts-left .chart1,
+		.charts-right .chart1 {
+			height: 32.5%;
+			width: 100%;
+			background: rgba(4, 4, 53, 0.4);
+			border-radius: 5px;
+			padding: 10px;
+			box-sizing: border-box;
+		}
+
+		.chart-title {
+			font-size: 18px;
+			font-family: JYaoTi;
+			text-align: center;
+			color: rgba(0, 219, 255, 1);
+			line-height: 18px;
+		}
+
+
+		.rotate-earth {
+			width: 900px;
+			background: url(./img/worldbg.png);
+			position: relative;
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+		#canvasBox {
+			width: 1920px;
+			height: 100%;
+			top: 0;
+			left: 0;
+			position: fixed;
+			background: transparent;
+			overflow: hidden;
+		}
+
+		video {
+			height: 1200px;
+			position: absolute;
+			width: 2132px;
+
+			left: 50%;
+			top: 0px;
+			transform: translateX(-50%);
+		}
+
+		#chart1,
+		#chart2,
+		#chart3,
+		#chart5,
+		#chart6 {
+			width: 100%;
+			height: calc(100% - 30px);
+			margin-top: 15px;
+		}
+
+		#chart4 {
+			width: 100%;
+			height: calc(100% - 30px);
+			margin-top: 15px;
+		}
+
+		#chart7 {
+			width: 100%;
+			height: 550px;
+			-webkit-tap-highlight-color: transparent;
+			user-select: none;
+			left: 50%;
+			position: relative;
+			transform: translate(-50%, -50%);
+			top: 50%;
+		}
+		.error-part{
+			width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+			background: #0b1e4b;
+			z-index: 99;
+			opacity: 0;
+			top: 100%;
+		}
+		.error-part-active{
+			opacity: 1;
+			top: 0;
+			transition: all 1s;
+		}
+		.back-0 {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            transition: all 1s;
+        }
+        .back-1 {
+          
+            opacity: 1;
+            transition: all 1s;
+        }
+        .error-title{
+            position: absolute;
+            top: 70px;
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            font-size: 40px;
+            color: white;
+            text-align: center;
+        }
+	</style>
+	<script src="./js/echarts.js"></script>
+	<script src="./js/jquery.js"></script>
+	<script src="./js/three.min.js"></script>
+	<!-- <script src="./js/echarts-gl.min.js"></script> -->
+
+</head>
+
+<body style="overflow: hidden;" onclick="$('.chart7-modal').removeClass('chart7-modal-active')">
+	<div class="ceo-zone">
+		<div class="mask"></div>
+		<div class="echarts">
+			<div class="header"></div>
+			<div class="number-scroll">
+				<div class="part1">
+					<div class="number-header">本月新增租户数量（个）</div>
+					<div class="number-content">
+						<div class="number-left">
+							<span></span>
+							<span></span>
+							<span class="number-left-number-0"></span>
+						</div>
+						<div class="number-right">
+							<div class="right-top">上月新增</div>
+							<div class="right-bottom">170</div>
+						</div>
+					</div>
+				</div>
+				<div class="part1">
+					<div class="number-header">本月新增用户数量（人）</div>
+					<div class="number-content">
+						<div class="number-left">
+							<span>21</span>
+							<span>,</span>
+							<span class="number-left-number-1"></span>
+						</div>
+						<div class="number-right">
+							<div class="right-top">上月新增</div>
+							<div class="right-bottom">17,123</div>
+						</div>
+					</div>
+				</div>
+				<div class="part1">
+					<div class="number-header">本月销售总金额（万元）</div>
+					<div class="number-content">
+						<div class="number-left">
+							<span>9</span>
+							<span>,</span>
+							<span class="number-left-number-2"></span>
+						</div>
+						<div class="number-right">
+							<div class="right-top">上月总金额</div>
+							<div class="right-bottom">8,219</div>
+						</div>
+					</div>
+				</div>
+				<div class="part1">
+					<div class="number-header">本月新入职员工（人）</div>
+					<div class="number-content">
+						<div class="number-left">
+							<span>1</span>
+							<span>,</span>
+							<span class="number-left-number-3"></span>
+						</div>
+						<div class="number-right">
+							<div class="right-top">同比增长</div>
+							<div class="right-bottom">40.21%</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="echarts-part">
+				<div class="charts-left">
+					<div class="chart1">
+						<div class="chart-title">员工分布区域</div>
+						<div id="chart1"></div>
+					</div>
+					<div class="chart1" style="margin-top: 15px;">
+						<div class="chart-title">员工流失率</div>
+						<div id="chart6"></div>
+					</div>
+
+					<div class="chart1" style="margin-top: 15px;">
+						<div class="chart-title">人员规划完成率</div>
+						<div id="chart3"></div>
+					</div>
+				</div>
+				<div class="charts-center rotate-earth" style="width: 50%;max-width: 86vh;height: 72vh;position: relative;">
+					<div id="chart7"></div>
+					<div class="chart7-modal" onclick="event.stopPropagation()">
+						<div class="modal-header">
+							<span class="cn">上海</span>
+							<span class="en">ShangHai</span>
+						</div>
+						<div class="modal-content">
+							<div class="content-title">销售额：<span class="num">3424</span>万元</div>
+							<div class="content-chart">
+								<div id="schart1"></div>
+								<div id="schart2"></div>
+							</div>
+						</div>
+					</div>
+					<script src="./chart/schart1.js"></script>
+					<script src="./chart/schart2.js"></script>
+				</div>
+				<div class="charts-right">
+					<div class="chart1" style="overflow: hidden;position: relative;">
+						<div class="chart-title">部门预算费用达成率</div>
+						<div id="chart4"></div>
+					</div>
+					<div class="chart1" style="margin-top: 15px;">
+						<div class="chart-title">员工激励平台上线率</div>
+						<div id="chart5"></div>
+					</div>
+					<div class="chart1" style="margin-top: 15px;">
+						<div class="chart-title">员工激励平台访问趋势</div>
+						<div id="chart2"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<video autoplay loop muted playsinline src="./video/bg.mp4" class="fillWidth"></video>
+		<div class="error-part" onclick="$('.error-part').removeClass('error-part-active')">
+			<img class="back-0" src="./img/error.png" alt="">
+			<div class="error-title">
+			
+			</div>
+	
+		</div>
+	</div>
+	<script>
+		var rollInterval0, rollInterval1, rollInterval2, rollInterval3
+		var rollInterval = { rollInterval0, rollInterval1, rollInterval2, rollInterval3 }
+		var arr = [190, 268, 416, 312]
+		var numItemHeight
+		arr.forEach((obj, index) => {
+			initPage($('.number-left-number-' + index), 3)
+			numItemHeight = $('.num-item').eq(0).height(); // 获取数字dom的高度
+			numberRoll($('.number-left-number-' + index), obj)
+			rollInterval['rollInterval' + index] = setInterval(() => {
+				arr[index] += Math.floor(Math.random() * 10)
+
+				numberRoll($('.number-left-number-' + index), arr[index]);
+			}, 3000);
+		})
+
+
+		function numberRoll(container, total) {
+			var number = total.toString().split("").reverse().join("");
+			for (var i = 0; i < number.length; i++) {
+				// 目标值如果比原本值大，则向上滚动，如果小则向下滚动（0 -> 3 从下往上滚动3个单元格高度 margeTop = -90px 反之 从上往下滚3个单元格高度 margeTop = 90px）
+				var height = parseInt(number[i]) * numItemHeight;
+				$(container).find('.num' + i + ' .numbers-view').animate({ marginTop: -height }, 1000, "swing");
+			}
+		}
+
+		function initPage(container, digit) {
+			var uId = generateUniqueId();
+			var _html = '';
+			for (var i = digit - 1; i >= 0; i--) {
+				_html += '<div class="number num' + i + '">' +
+					'<div class="numbers-view">' +
+					'<div class="num-item zero">0</div>' +
+					'<div class="num-item one">1</div>' +
+					'<div class="num-item two">2</div>' +
+					'<div class="num-item three">3</div>' +
+					'<div class="num-item four">4</div>' +
+					'<div class="num-item five">5</div>' +
+					'<div class="num-item six">6</div>' +
+					'<div class="num-item seven">7</div>' +
+					'<div class="num-item eight">8</div>' +
+					'<div class="num-item nine">9</div>' +
+					'</div>' +
+					'</div>';
+			}
+			container.html(_html);
+		};
+
+		// 生成唯一主键id
+		function generateUniqueId() {
+			var d = new Date().getTime();
+			var uuid = 'xxxxxxxx_xxxx_4xxx_yxxx_xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+				var r = (d + Math.random() * 16) % 16 | 0;
+				d = Math.floor(d / 16);
+				return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+			});
+			return uuid;
+		};
+
+		var interval = null
+
+		var showModal = function (params) {
+			$('.chart7-modal').removeClass('chart7-modal-active')
+			setTimeout(() => {
+				if (interval) {
+					clearInterval(interval)
+				}
+				$('.cn').html(params.ename)
+				$('.en').html(params.name)
+				$('.num').html(params.value)
+				const temp =  JSON.parse(JSON.stringify(params.barray))
+				const temp2 = JSON.parse(JSON.stringify(params.barray))
+				var hightlight = false
+				temp.forEach((obj, index) => {
+					if (obj > 7) {
+						hightlight = true
+						temp[index] = {
+							value: obj,
+							itemStyle: {
+								normal: {
+									color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+										offset: 0,
+										color: 'rgba(214,121,48,1)'
+									}, {
+										offset: 0.8,
+										color: 'rgba(255,0,45,.7)'
+									}], false)
+								}
+							}
+						}
+					}
+				})
+				temp2.forEach((obj, index) => {
+					if (obj > 7) {
+						temp2[index] = {
+							value: obj,
+							itemStyle: {
+								normal: {
+									color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+										offset: 0,
+										color: 'rgba(214,121,48,1)'
+									}, {
+										offset: 0.8,
+										color: 'rgba(255,0,45,.9)'
+									}], false)
+								}
+							}
+						}
+					}
+				})
+				
+				var intervalNum = 10
+				var changeFlag = true
+				
+				if (hightlight) {
+					interval = setInterval(() => {
+						if (changeFlag) {
+							changeFlag = false
+							setData1({
+								series: [{
+									data: temp,
+								}]
+							})
+						} else {
+							changeFlag = true
+							setData1({
+								series: [{
+									data: temp2,
+								}]
+							})
+						}
+					}, 500)
+					//interval()
+				} else {
+					setData1({
+						series: [{
+							data: temp,
+						}]
+					})
+				}
+
+				setData2({
+					series: [{
+						data: params.aarray,
+					}, {
+						data: params.aarray2,
+					}]
+				})
+				$('.chart7-modal').addClass('chart7-modal-active')
+			}, 500)
+			
+		}
+	</script>
+	<!-- <script src="./js/china.js"></script>
+	<script src="./js/data-1499132667476-ry7ZXuu4Z.js"></script> -->
+	<script src="./js/world.js"></script>
+	<script src="./chart/chart1.js"></script>
+	<script src="./chart/chart2.js"></script>
+	<script src="./chart/chart3.js"></script>
+	<script src="./chart/chart4.js"></script>
+	<script src="./chart/chart5.js"></script>
+	<script src="./chart/chart6.js"></script>
+	<script src="./chart/chart7.js"></script>
+
+</body>
+
+</html>

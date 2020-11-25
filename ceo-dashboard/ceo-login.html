@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		.ceo-zone {
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background-image: url(img/bg.png);
+			background-size: cover;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.face-id-zone {
+			position: absolute;
+			z-index: 2;
+			top: 27vh;
+			height: 560px;
+			width: 560px;
+			color: #fff;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.logo {
+			position: absolute;
+			top: 90px;
+			background: url(img/logo.png);
+			width: 305px;
+			height: 119px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.round {
+			position: absolute;
+			width: 460px;
+			height: 460px;
+			top: 50px;
+			background: url(img/Oval-02.png);
+			left: 50%;
+			transform: translateX(-50%);
+			animation: 15s roundr linear infinite;
+		}
+
+		.round:before {
+			content: ' ';
+			display: block;
+			position: absolute;
+			width: 560px;
+			height: 560px;
+			background: url(img/Oval-01.png);
+			left: 50%;
+			transform: translateX(-50%);
+			top: -50px;
+			animation: 20s roundl linear infinite;
+		}
+
+		.round:after {
+			content: ' ';
+			display: block;
+			position: absolute;
+			width: 368px;
+			height: 368px;
+			background: url(img/Oval-03.png);
+			left: 50%;
+			transform: translateX(-50%);
+			top: 46px;
+			animation: 10s roundl linear infinite;
+		}
+
+		@keyframes roundl {
+			from {
+				transform: translateX(-50%) rotate(0deg);
+			}
+
+			to {
+				transform: translateX(-50%) rotate(360deg);
+			}
+		}
+
+		@keyframes roundr {
+			from {
+				transform: translateX(-50%) rotate(0deg);
+			}
+
+			to {
+				transform: translateX(-50%) rotate(-360deg);
+			}
+		}
+
+		.video {
+			position: absolute;
+			width: 400px;
+			height: 400px;
+			overflow: hidden;
+			/* background: #000; */
+			border-radius: 50%;
+			top: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.scan {
+			position: absolute;
+			width: 400px;
+			height: 400px;
+			background: url(img/face.png);
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 50%;
+			overflow: hidden;
+			top: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.scan:before {
+			content: ' ';
+			width: 100%;
+			display: block;
+			height: 5px;
+			background-position: center;
+			background-repeat: no-repeat;
+			background: url(img/scan.png);
+			animation: 3s scan linear infinite;
+		}
+
+		@keyframes scan {
+			0% {
+				margin-top: -10%;
+			}
+
+			50% {
+				margin-top: 110%;
+			}
+
+			100% {
+				margin-top: -10%;
+			}
+		}
+
+		.success {
+			position: absolute;
+			width: 400px;
+			height: 400px;
+			background: url(img/Success-Oval-00.png);
+			background-position: center center;
+			background-repeat: no-repeat;
+			top: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.success:after {
+			content: ' ';
+			position: absolute;
+			width: 400px;
+			height: 400px;
+			background: url(img/Success.png);
+			background-position: center center;
+			background-repeat: no-repeat;
+			left: 50%;
+			transform: translateX(-50%);
+			animation: 0.5s show-success ease-in-out forwards;
+			animation-delay: 0.5s;
+			opacity: 0;
+		}
+
+		@keyframes show-success {
+			0% {
+				opacity: 0;
+				top: 0px;
+			}
+
+			50% {
+				top: -15px;
+			}
+
+			100% {
+				opacity: 1;
+				top: 0px;
+			}
+		}
+
+		video {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			position: absolute;
+			top: 0px;
+			left: -100px;
+		}
+	</style>
+	<script src="js/face-api.js"></script>
+	<script src="js/commons.js"></script>
+	<script src="js/jquery.js"></script>
+	<script src="js/faceDetectionControls.js"></script>
+	<link rel="stylesheet" href="styles.css">
+	<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.js"></script>
+
+</head>
+
+<body>
+	<div class="ceo-zone">
+		<div class="logo"></div>
+		<div class="face-id-zone">
+			<div class="round">
+
+			</div>
+			<div class="video">
+				<video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted
+					style="width: 600px;height: 400px;"></video>
+				<canvas id="overlay"></canvas>
+			</div>
+			<div class="scan">
+
+			</div>
+			<div class="success">
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+	$('.success').hide()
+	$('.video').hide()
+	$('.scan').hide()
+	let forwardTimes = []
+
+	function updateTimeStats(timeInMs) {
+		forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+		const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+		$('#time').val(`${Math.round(avgTimeInMs)} ms`)
+		$('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+	}
+
+	async function onPlay() {
+		const videoEl = $('#inputVideo').get(0)
+		if (videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded()) {
+			return setTimeout(() => onPlay())
+		}
+
+
+		const options = getFaceDetectorOptions()
+
+		const ts = Date.now()
+
+		const result = await faceapi.detectSingleFace(videoEl, options)
+
+		updateTimeStats(Date.now() - ts)
+
+		if (result) {
+			setTimeout(() => {
+				$('.video').hide()
+				$('.scan').hide()
+				$('.success').show()
+			}, 3000)
+				
+			setTimeout(() => {
+				window.location.href = window.location.origin + window.location.pathname.split('/login')[0] +'/ceo'
+			}, 5000)
+			
+		}
+
+		setTimeout(() => onPlay())
+	}
+
+	async function run() {
+		await changeFaceDetector(TINY_FACE_DETECTOR)
+		
+		changeInputSize(128)
+
+
+		const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+		$('.video').show()
+		$('.scan').show()
+		const videoEl = $('#inputVideo').get(0)
+		videoEl.srcObject = stream
+		
+	}
+
+	function updateResults() { }
+
+	$(document).ready(function () {
+		initFaceDetectionControls()
+		run()
+	})
+</script>
+
+</html>
